@@ -1,47 +1,51 @@
 #include "chess_base.hh"
 #include "chess_pieces.hh"
-//
+
+namespace something
+{
+  ChessBoard *board;
+}
 void ChessBoard::initializeBoard()
 {
-  int line = 0;
-  int collumn = 0;
-  int Size=(int)(sizeof(board)/sizeof(Piece*));
+  using namespace something;
+int collumn=0;
+int line=0;
+bool IsWhite = true;
+bool IsRight = false;
 
-  for ( ;line!=Size; line+=Size)
-  {        
-    bool IsWhite = (bool)line;
-      for ( ;collumn!=Size; collumn+=Size)
-      {
-        bool IsLeft = (bool)collumn;
+  for ( collumn = 0;collumn<=7; collumn+=7)
+  {    
 
-        setPieceAt(new Rook(IsWhite, collumn, line, 'P'), collumn, line);
-        setPieceAt(new Knight(IsWhite, collumn, line, 'P'), collumn+1-1*IsLeft, line);
-        setPieceAt(new Bishop(IsWhite, collumn, line, 'P'), collumn+1-1*IsLeft, line);
-      }
-      setPieceAt(new Queen(IsWhite, collumn, line, 'P'), 3, line);
-      setPieceAt(new King(IsWhite, collumn, line, 'P'), 4, line);
-  }
+    for ( line = 0;line<=7; line+=7)
+     {
+
+       setPieceAt(new Rook(line,collumn, IsWhite, 'R'), line, collumn);
+       setPieceAt(new Knight(line+1-2*IsRight, collumn, IsWhite, 'N'), line+1-2*IsRight, collumn);
+       setPieceAt(new Bishop(line+2-4*IsRight, collumn, IsWhite, 'B'), line+2-4*IsRight, collumn);
+        for (int i = 0; i < 4; ++i) {
+            setPieceAt(new Pawn(i+4*(!IsRight), collumn+(IsWhite ? 1 : -1), IsWhite, 'P'), i+4*(!IsRight), collumn+(IsWhite ? 1 : -1));
+        }
+         IsRight = !IsRight;
+     }
+      setPieceAt(new Queen(3, collumn, IsWhite, 'Q'), 3, collumn);
+      setPieceAt(new King(4, collumn, IsWhite, 'K'), 4, collumn);
+      IsWhite = !IsWhite;
+  
+    }
+
 
 }
 
   // Get the piece located at the coordinates x, y, be carefull! you may need to swap the coordinates
-  Piece* ChessBoard::getPieceAt(int x, int y)
+   Piece* ChessBoard::getPieceAt(int x, int y)
   {
-    if(x < 1 || x > BOARD_SIZE || y < 1 || y > BOARD_SIZE)
-    {
-        return nullptr;
-    }
-    return board[x-1][y-1];
+    return board[x][y];
   }
 
   // Set the submited piece at the coordinates x, y, be carefull! you may need to swap the coordinates
   void ChessBoard::setPieceAt(Piece* piece, int x, int y)
   {
-    if(x < 1 || x > BOARD_SIZE || y < 1 || y > BOARD_SIZE)
-    {
-        return;
-    }
-    board[x-1][y-1] = piece;
+    board[x][y] = piece;
   }
   
   // destructor, must release all memory allocated for pieces in the board
@@ -53,6 +57,51 @@ void ChessBoard::initializeBoard()
           }
       }
   }
+
+Piece::Piece(bool iswhite)
+{
+
+    is_color_white = iswhite;
+
+}
+
+//Overload constructor, set the color and attach a new Position and Visual component with the coordinates (x,y) and letter
+Piece::Piece(bool iswhite, int x, int y, char letter)
+{
+    is_color_white = iswhite;
+    attach(static_cast<Component*>(new PositionComponent(x,y)));
+    attach(static_cast<Component*>(new VisualComponent(is_color_white ? std::tolower(letter) : std::toupper(letter))));
+}
+
+ bool Piece::isWhite()
+ {
+     return is_color_white;
+ }
+
+
+PositionComponent* Piece::getPosition()
+    {
+        return dynamic_cast<PositionComponent*> (getComponent("Position"));
+    }
+        
+        // Get the visual component attached to the entity
+VisualComponent* Piece::getVisual()
+    {
+        return dynamic_cast<VisualComponent*> (getComponent("Visual"));
+    }
+
+    Piece::~Piece()
+    {
+        free(getPosition());
+        free(getVisual());
+        // Destructor implementation
+    }
+
+
+
+
+
+
 
 
 

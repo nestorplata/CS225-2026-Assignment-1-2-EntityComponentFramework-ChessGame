@@ -2,10 +2,6 @@
 #include <string>
 #include <iostream>
 #include "chess_base.hh"
-
-
-
-//vec 2 class
 struct Vec2
 {
     public:
@@ -23,7 +19,6 @@ struct Vec2
     Vec2 operator-(const Vec2& v) const { return {x - v.x, y - v.y}; }
     Vec2 operator/(const Vec2& v) const { return {x / v.x, y / v.y}; }
     Vec2 operator/=(const Vec2& v) const { return {x / v.x, y / v.y}; }
-    Vec2 operator+=(const Vec2& v) const { return {x + v.x, y + v.y}; }
     bool operator!=(const Vec2& v) const { return {x != v.x || y != v.y}; }
     bool operator==(const Vec2& v) const { return {x == v.x && y == v.y}; }
 
@@ -62,7 +57,7 @@ class Pawn: public Piece
 
         Pawn(int x, int y, bool iswhite, char letter): Piece(iswhite, x,y,letter)
         {
-            Behavior = &Pawn::FirstBehaviour;
+            Behavior = &Pawn::Is2Steps;
         }
         
         Pawn() : Pawn(true,0,0,'P'){};
@@ -71,8 +66,8 @@ class Pawn: public Piece
 
     protected:
 
-        bool GeneralBehavior(int sx, int sy, int fx, int fy);
-        bool FirstBehaviour(int sx, int sy, int fx, int fy);
+        bool Is1Step(int sx, int sy, int fx, int fy);
+        bool Is2Steps(int sx, int sy, int fx, int fy);
         bool EatBehaviour(int sx, int sy, int fx, int fy);
     public:
 
@@ -93,9 +88,6 @@ class Knight: public Piece
         
         Knight() : Knight(true,0,0,'N'){};
 
-    protected:
-        bool GeneralBehavior(int sx, int sy, int fx, int fy);
-
     public:
     PieceType getType() override { return PieceType::KNIGHT; } 
     bool canMoveTo(int x, int y) override;
@@ -110,9 +102,6 @@ class Bishop: public Piece
         
         Bishop() : Bishop(true,0,0,'B'){};
 
-    protected:
-        bool GeneralBehavior(int sx, int sy, int fx, int fy);
-
     public:
     PieceType getType() override { return PieceType::BISHOP; } 
     bool canMoveTo(int x, int y) override;
@@ -125,9 +114,6 @@ class Rook: public Piece
         }
         
         Rook() : Rook(true,0,0,'R'){};
-
-    protected:
-        bool GeneralBehavior(int sx, int sy, int fx, int fy);
 
     public:
     PieceType getType() override { return PieceType::ROOK; } 
@@ -143,9 +129,6 @@ class Queen: public Piece
         
         Queen() : Queen(true,0,0,'Q'){};
 
-    protected:
-        bool GeneralBehavior(int sx, int sy, int fx, int fy);
-
     public:
     PieceType getType() override { return PieceType::QUEEN; } 
     bool canMoveTo(int x, int y) override;
@@ -158,9 +141,6 @@ class King: public Piece
         }
         
         King() : King(true,0,0,'K'){};
-
-    protected:
-        bool GeneralBehavior(int sx, int sy, int fx, int fy);
 
     public:
     PieceType getType() override { return PieceType::KING; } 

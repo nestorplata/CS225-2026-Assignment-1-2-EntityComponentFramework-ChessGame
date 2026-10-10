@@ -1,54 +1,6 @@
 
-#include "chess_base.hh"
 #include "chess_pieces.hh"
-#include "main.cpp"
-
-Piece::Piece(bool iswhite)
-{
-
-    is_color_white = iswhite;
-
-}
-
-//Overload constructor, set the color and attach a new Position and Visual component with the coordinates (x,y) and letter
-Piece::Piece(bool iswhite, int x, int y, char letter)
-{
-    is_color_white = iswhite;
-    attach(new PositionComponent(x,y));
-    attach(new VisualComponent(letter));
-    // Constructor implementation
-}
-
- bool Piece::isWhite()
- {
-     return is_color_white;
- }
-
-bool Piece::canMoveTo(int x, int y)  {
-        return (!board.getPieceAt(x,y));
-    }
-
-PositionComponent* Piece::getPosition()
-    {
-        return dynamic_cast<PositionComponent*> (getComponent("Position"));
-    }
-        
-        // Get the visual component attached to the entity
-VisualComponent* Piece::getVisual()
-    {
-        return dynamic_cast<VisualComponent*> (getComponent("Visual"));
-    }
-
-    Piece::~Piece()
-    {
-        free(getPosition());
-        free(getVisual());
-        // Destructor implementation
-    }
-
-
-
-    
+#include "chess_base.hh"
 CollisionInfo CheckCollision(Vec2 StartPos, Vec2 EndPos)
 {
     CollisionInfo Info;
@@ -64,8 +16,10 @@ CollisionInfo CheckCollision(Vec2 StartPos, Vec2 EndPos)
 
     while(EndPos != StartPos)
     {
-        StartPos+=delta_Change;
-        Info.CollidedPiece =board.getPieceAt(StartPos.x, StartPos.y);
+        StartPos.x+=delta_Change.x;
+        StartPos.y+=delta_Change.y;
+
+        //Info.CollidedPiece = something::board->getPieceAt(StartPos.x, StartPos.y);
         if(Info.CollidedPiece != nullptr) 
         {
             Info.IsCollision =true;
@@ -89,9 +43,59 @@ bool IsInBounds(const T& value, const T& low, const T& high) {
     return !(value < low) && !(high < value);
 }
 
+//methods to handle the movement of the pieces
 
+//Pawn movement behavior on first move of pawn
+bool Pawn::Is2Steps(int sx, int sy, int fx, int fy)
+{
 
+    if(IsInBounds(ChangeY,1,2)  && !CheckCollision(sx,sy,fx,fy).IsCollision)
+    {
+        Pawn::Behavior = Is1Step;
+        return true;
+    }
+    return false;
+}
 
+//Pawn movement behavior after first move
+bool Pawn::Is1Step(int sx, int sy, int fx, int fy)
+{
+    return ChangeY ==1  && !CheckCollision(sx,sy,fx,fy).IsCollision;
+}
+
+//Check if movement Straight is possible
+bool IsStratightRoute(int sx, int sy, int fx, int fy, Piece* piece)
+{
+    int changeX = fx - sx;
+    int changeY = fy - sy;
+    if(0==changeX || 0==changeY)
+    {
+        return true;
+        //CollisionInfo info = CheckCollision(sx,sy,fx,fy);
+
+        //return info.IsCollision == false || 
+        //(info.IsCollision==true &&info.CollidedPiece->isWhite() != piece->isWhite());
+    }
+    return false;
+}
+
+//Check if movement Diagonal is possible
+bool IsDiagonalRoute(int sx, int sy, int fx, int fy, Piece* piece)
+{
+    int changeX = fx - sx;
+    int changeY = fy - sy;
+
+    if(changeX!=0 && abs(changeX) == abs(changeY))
+    {
+        CollisionInfo info = CheckCollision(sx,sy,fx,fy);
+        return true;
+        //info.IsCollision == false || 
+        //(info.IsCollision==true &&info.CollidedPiece->isWhite() != piece->isWhite());
+    }  
+    return false;
+}
+
+//canMove Functions
 
 
 bool Pawn::canMoveTo(int x, int y)
@@ -100,31 +104,16 @@ bool Pawn::canMoveTo(int x, int y)
     
     ChangeX = x - Position->getX();
     ChangeY = y - Position->getY();
-    if(abs(ChangeX) == 1 && ChangeY == 1 )
+    if(!isWhite()) ChangeY *=-1;
+    if(abs(ChangeX) == 1 && ChangeY == 1  )
     {
-        Piece* target = board.getPieceAt(x,y);
-        return target && target->isWhite() != this->is_color_white;   
+        //Piece* target = something::board->getPieceAt(x,y);
+        return true;//target && target->isWhite() != this->is_color_white;   
     }
     if(!ChangeX==0) return false;
     
     return (this->*Behavior)(Position->getX(), Position->getY(), x,y);
 
-}
-
-bool Pawn::FirstBehaviour(int sx, int sy, int fx, int fy)
-{
-    if(IsInBounds(ChangeY,1,2)  && !CheckCollision(sx,sy,fx,fy).IsCollision)
-    {
-        Pawn::Behavior = GeneralBehavior;
-        return true;
-    }
-    return false;
-}
-
-bool Pawn::GeneralBehavior(int sx, int sy, int fx, int fy)
-{
-
-    return ChangeY ==1  && !CheckCollision(sx,sy,fx,fy).IsCollision;
 }
 
 bool Knight::canMoveTo(int x, int y)
@@ -134,38 +123,11 @@ bool Knight::canMoveTo(int x, int y)
     int changeY = Position->getY()- y;
     if (abs(changeX)+abs(changeY)==3 && abs(changeX-changeY)==1)
     {
-        Piece* target = board.getPieceAt(x,y);
-        return target == nullptr || target->isWhite() != this->is_color_white;
+        //Piece* target =  something::board->getPieceAt(x,y);
+        return true;//target == nullptr || target->isWhite() != this->is_color_white;
     }
     return false;
 
-}
-
-bool IsStratightRoute(int sx, int sy, int fx, int fy, Piece* piece)
-{
-    int changeX = fx - sx;
-    int changeY = fy - sy;
-    if(0==changeX || 0==changeY)
-    {
-        CollisionInfo info = CheckCollision(sx,sy,fx,fy);
-        return info.IsCollision == false || 
-        (info.IsCollision==true &&info.CollidedPiece->isWhite() != piece->isWhite());
-    }
-    return false;
-}
-
-bool IsDiagonalRoute(int sx, int sy, int fx, int fy, Piece* piece)
-{
-    int changeX = fx - sx;
-    int changeY = fy - sy;
-
-    if(abs(changeX) == abs(changeY))
-    {
-        CollisionInfo info = CheckCollision(sx,sy,fx,fy);
-        return info.IsCollision == false || 
-        (info.IsCollision==true &&info.CollidedPiece->isWhite() != piece->isWhite());
-    }  
-    return false;
 }
 
 bool Bishop::canMoveTo(int x, int y)
@@ -183,8 +145,8 @@ bool Rook::canMoveTo(int x, int y)
 bool Queen::canMoveTo(int x, int y)
 {
     PositionComponent* Position = getPosition();
-    return IsStratightRoute(Position->getX(), Position->getY(), x,y, this) 
-    || IsDiagonalRoute(Position->getX(), Position->getY(), x,y, this)    ;
+    return IsDiagonalRoute(Position->getX(), Position->getY(), x,y, this) ||
+    IsStratightRoute(Position->getX(), Position->getY(), x,y, this) ;
 }
 
 bool King::canMoveTo(int x, int y)
@@ -192,16 +154,11 @@ bool King::canMoveTo(int x, int y)
     PositionComponent* Position = getPosition();
     int changeX = Position->getX()- x;
     int changeY = Position->getY()- y;
-    if(IsInBounds(changeX+changeY,-2,2))
+    int TotalChange = abs(changeX)+abs(changeY);
+    if (TotalChange==1 || TotalChange==2 && abs(changeX)==1)
     {
-        Piece* target = board.getPieceAt(x,y);
-        return target == nullptr || target->isWhite() != this->is_color_white;
+        //Piece* target =   something::board->getPieceAt(x,y);
+        return true; //target == nullptr || target->isWhite() != this->is_color_white;
     }
     return false;
 }
-
-
-
-
-
-
