@@ -137,6 +137,7 @@ bool IsStratightRoute(int sx, int sy, int fx, int fy, Piece* piece)
         return info.IsCollision == false || 
         (info.IsCollision==true &&info.CollidedPiece->isWhite() != piece->isWhite());
     }
+    return false;
 }
 
 bool IsDiagonalRoute(int sx, int sy, int fx, int fy, Piece* piece)
@@ -149,7 +150,8 @@ bool IsDiagonalRoute(int sx, int sy, int fx, int fy, Piece* piece)
         CollisionInfo info = CheckCollision(sx,sy,fx,fy);
         return info.IsCollision == false || 
         (info.IsCollision==true &&info.CollidedPiece->isWhite() != piece->isWhite());
-    }
+    }  
+    return false;
 }
 
 bool Bishop::canMoveTo(int x, int y)

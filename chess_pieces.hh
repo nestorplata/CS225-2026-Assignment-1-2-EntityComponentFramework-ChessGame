@@ -22,8 +22,6 @@ struct Vec2
     Vec2 operator/(const Vec2& v) const { return {x / v.x, y / v.y}; }
     Vec2 operator/=(const Vec2& v) const { return {x / v.x, y / v.y}; }
     Vec2 operator+=(const Vec2& v) const { return {x + v.x, y + v.y}; }
-
-    Vec2 operator*(float scalar) const { return {x * scalar, y * scalar};}
     bool operator!=(const Vec2& v) const { return {x != v.x || y != v.y}; }
     bool operator==(const Vec2& v) const { return {x == v.x && y == v.y}; }
 
@@ -45,12 +43,8 @@ struct CollisionInfo
 
 
 // Component Name identifiers
-const static class ComponentNames
-{
-    public:
-    inline static const  char* POS_COMP_NAME = "Position";
-    inline static const char* VIS_COMP_NAME = "Visual";
-};
+    static const  char* POS_COMP_NAME = "Position";
+    static const char* VIS_COMP_NAME = "Visual";
 
 
 
@@ -84,10 +78,6 @@ class Pawn: public Piece
 
 
 };
-
-
-
-
 
 
 class Knight: public Piece
