@@ -1,8 +1,10 @@
 #pragma once
 #include <string>
 #include <iostream>
-
 #include "chess_base.hh"
+
+
+
 //vec 2 class
 struct Vec2
 {

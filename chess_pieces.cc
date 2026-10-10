@@ -19,6 +19,11 @@ Piece::Piece(bool iswhite, int x, int y, char letter)
     // Constructor implementation
 }
 
+ bool Piece::isWhite()
+ {
+     return is_color_white;
+ }
+
 bool Piece::canMoveTo(int x, int y)  {
         return (!board.getPieceAt(x,y));
     }
@@ -33,6 +38,15 @@ VisualComponent* Piece::getVisual()
     {
         return dynamic_cast<VisualComponent*> (getComponent("Visual"));
     }
+
+    Piece::~Piece()
+    {
+        free(getPosition());
+        free(getVisual());
+        // Destructor implementation
+    }
+
+
 
     
 CollisionInfo CheckCollision(Vec2 StartPos, Vec2 EndPos)
